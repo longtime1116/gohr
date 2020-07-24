@@ -26,38 +26,6 @@ func ReadDir() ([]FileInfo, error) {
 	return fi, nil
 }
 
-func main() {
-	clear()
-	m := FileModified(make(map[string]time.Time))
-	files, err := ReadDir()
-	if err != nil {
-		panic(err)
-	}
-	c := m.register(files)
-	for {
-		// TODO: get files recursively
-		files, err := ReadDir()
-		if err != nil {
-			panic(err)
-		}
-		if c != len(files) {
-			c = len(files)
-			reload()
-		}
-		// check existing files
-		for _, f := range files {
-			// TODO: use argument
-			if f.name == "main" {
-				continue
-			}
-			if _, ok := m[f.name]; !ok || m[f.name] != f.mod {
-				m.update(&f)
-				reload()
-			}
-		}
-	}
-}
-
 func (m FileModified) register(files []FileInfo) int {
 	for _, f := range files {
 		m[f.name] = f.mod
@@ -96,4 +64,35 @@ func clear() {
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 	fmt.Println("[gohr running]")
+}
+func main() {
+	clear()
+	m := FileModified(make(map[string]time.Time))
+	files, err := ReadDir()
+	if err != nil {
+		panic(err)
+	}
+	c := m.register(files)
+	for {
+		// TODO: get files recursively
+		files, err := ReadDir()
+		if err != nil {
+			panic(err)
+		}
+		if c != len(files) {
+			c = len(files)
+			reload()
+		}
+		// check existing files
+		for _, f := range files {
+			// TODO: use argument
+			if f.name == "main" {
+				continue
+			}
+			if _, ok := m[f.name]; !ok || m[f.name] != f.mod {
+				m.update(&f)
+				reload()
+			}
+		}
+	}
 }
