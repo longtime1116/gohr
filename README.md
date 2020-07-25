@@ -30,3 +30,8 @@ gohr main
 ```
 
 If you ommit binary name, the basename of current directory is used.
+
+## Demo
+![gohr demo](https://raw.githubusercontent.com/wiki/longtime1116/gohr/images/gohr.gif)
+
+
