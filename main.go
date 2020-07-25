@@ -1,19 +1,24 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"time"
 )
 
 type FileModified map[string]time.Time
+
 type FileInfo struct {
 	name string
 	mod  time.Time
 }
 
+// TODO: get files recursively
+// FIXME: bad function name
 func ReadDir() ([]FileInfo, error) {
 	files, err := ioutil.ReadDir("./")
 	if err != nil {
@@ -37,20 +42,34 @@ func (m FileModified) update(fi *FileInfo) {
 	m[fi.name] = fi.mod
 }
 
-func reload() {
-	clear()
+func outfname() (string, error) {
+	flag.Parse()
+	if len(flag.Args()) == 0 {
+		dirname, err := os.Getwd()
+		if err != nil {
+			return "", err
+		}
+		return path.Base(dirname), nil
+	}
+	return flag.Args()[0], nil
+}
 
-	fmt.Printf("Reloading...\n\n")
+func reload(bin string) {
+	clear(bin)
+
+	fmt.Printf("Reloading... ")
 	// build
-	out, err := exec.Command("go", "build", "-o", "main").CombinedOutput()
+	out, err := exec.Command("go", "build", "-o", bin).CombinedOutput()
 	if err != nil {
 		fmt.Println(err.Error())
 		fmt.Println(string(out))
-		//TODO: keep the previous result?
+		//TODO?: keep the previous result
 		return
 	}
+	fmt.Printf("`" + bin + "` was built!\n\n")
+
 	// execute
-	out, err = exec.Command("./main").CombinedOutput()
+	out, err = exec.Command("./" + bin).CombinedOutput()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -58,40 +77,45 @@ func reload() {
 	fmt.Println(string(out))
 }
 
-func clear() {
+func clear(bin string) {
 	// clear the screen
 	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
-	fmt.Println("[gohr running]")
+	fmt.Println("$ gohr " + bin)
 }
 func main() {
-	clear()
+	bin, err := outfname()
+	if err != nil {
+		panic(err)
+	}
+
 	m := FileModified(make(map[string]time.Time))
 	files, err := ReadDir()
 	if err != nil {
 		panic(err)
 	}
 	c := m.register(files)
+
+	reload(bin)
 	for {
-		// TODO: get files recursively
 		files, err := ReadDir()
 		if err != nil {
 			panic(err)
 		}
+		// if files are removed or created, rebuild and rerun
 		if c != len(files) {
 			c = len(files)
-			reload()
+			reload(bin)
 		}
-		// check existing files
+		// if a file modified, rebuild and rerun
 		for _, f := range files {
-			// TODO: use argument
-			if f.name == "main" {
+			if f.name == bin {
 				continue
 			}
 			if _, ok := m[f.name]; !ok || m[f.name] != f.mod {
 				m.update(&f)
-				reload()
+				reload(bin)
 			}
 		}
 	}
