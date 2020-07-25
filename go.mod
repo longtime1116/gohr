@@ -1,3 +1,3 @@
-module github.com/longtime1116/go_sandbox/gohr
+module github.com/longtime1116/gohr
 
 go 1.14
