@@ -1,4 +1,5 @@
 # gohr
+
 `gohr` is a command line tool for hot-reloading(live-reloading) Go CLI application.
 Just run `gohr` in the terminal, the program is compiled every time the files are updated, and also executed.
 
@@ -16,4 +17,16 @@ Then test the installation
 gohr -h
 ```
 
+## Usage
 
+```shell
+gohr <binary name>
+```
+
+For example,
+
+```shell
+gohr main
+```
+
+If you ommit binary name, the basename of current directory is used.
