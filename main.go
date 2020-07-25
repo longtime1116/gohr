@@ -10,13 +10,16 @@ import (
 	"time"
 )
 
+// FileModified is a map with filename as key and modtime as value.
 type FileModified map[string]time.Time
 
+// FileInfo is the minimum required file information extracted.
 type FileInfo struct {
 	name string
 	mod  time.Time
 }
 
+// ReadDir gets filename and mod time of all files under the current directory
 // TODO: get files recursively
 // FIXME: bad function name
 func ReadDir() ([]FileInfo, error) {
