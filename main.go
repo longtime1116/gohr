@@ -121,5 +121,6 @@ func main() {
 				reload(bin)
 			}
 		}
+		time.Sleep(500 * time.Millisecond)
 	}
 }
