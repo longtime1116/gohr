@@ -20,21 +20,6 @@ type FileInfo struct {
 	mod  time.Time
 }
 
-// ReadDir gets filename and mod time of all files under the current directory
-// TODO: get files recursively
-// FIXME: bad function name
-func ReadDir() ([]FileInfo, error) {
-	files, err := ioutil.ReadDir("./")
-	if err != nil {
-		return nil, err
-	}
-	fi := make([]FileInfo, 0, len(files))
-	for _, f := range files {
-		fi = append(fi, FileInfo{f.Name(), f.ModTime()})
-	}
-	return fi, nil
-}
-
 // DirWalk gets filename and mod time of all files under the current directory recursively
 func DirWalk(path string) ([]FileInfo, error) {
 	files, err := ioutil.ReadDir(path)
