@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -19,16 +20,22 @@ type FileInfo struct {
 	mod  time.Time
 }
 
-// ReadDir gets filename and mod time of all files under the current directory
-// TODO: get files recursively
-// FIXME: bad function name
-func ReadDir() ([]FileInfo, error) {
-	files, err := ioutil.ReadDir("./")
+// DirWalk gets filename and mod time of all files under the current directory recursively
+func DirWalk(path string) ([]FileInfo, error) {
+	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
 	fi := make([]FileInfo, 0, len(files))
 	for _, f := range files {
+		if f.IsDir() {
+			fi2, err := DirWalk(filepath.Join(path, f.Name()))
+			if err != nil {
+				return nil, err
+			}
+			fi = append(fi, fi2...)
+			continue
+		}
 		fi = append(fi, FileInfo{f.Name(), f.ModTime()})
 	}
 	return fi, nil
@@ -94,7 +101,7 @@ func main() {
 	}
 
 	m := FileModified(make(map[string]time.Time))
-	files, err := ReadDir()
+	files, err := DirWalk("./")
 	if err != nil {
 		panic(err)
 	}
@@ -102,7 +109,7 @@ func main() {
 
 	reload(bin)
 	for {
-		files, err := ReadDir()
+		files, err := DirWalk("./")
 		if err != nil {
 			panic(err)
 		}
