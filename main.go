@@ -26,12 +26,12 @@ func (fi *FileInfo) String() string {
 }
 
 // DirWalk gets filename and mod time of all files under the current directory recursively
-func DirWalk(path string) ([]FileInfo, error) {
+func DirWalk(path string) ([]*FileInfo, error) {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
-	fi := make([]FileInfo, 0, len(files))
+	fi := make([]*FileInfo, 0, len(files))
 	for _, f := range files {
 		if strings.HasPrefix(f.Name(), ".") {
 			continue
@@ -44,12 +44,12 @@ func DirWalk(path string) ([]FileInfo, error) {
 			fi = append(fi, fi2...)
 			continue
 		}
-		fi = append(fi, FileInfo{f.Name(), f.ModTime()})
+		fi = append(fi, &FileInfo{f.Name(), f.ModTime()})
 	}
 	return fi, nil
 }
 
-func (m FileModified) register(files []FileInfo) int {
+func (m FileModified) register(files []*FileInfo) int {
 	for _, f := range files {
 		m[f.name] = f.mod
 	}
@@ -73,7 +73,7 @@ func outfname() (string, error) {
 }
 
 func reload(bin string) {
-	//clear(bin)
+	clear(bin)
 
 	fmt.Printf("Reloading... ")
 	// build
@@ -117,6 +117,7 @@ func main() {
 
 	reload(bin)
 	for {
+		time.Sleep(500 * time.Millisecond)
 		files, err := DirWalk("./")
 		if err != nil {
 			panic(err)
@@ -132,10 +133,9 @@ func main() {
 				continue
 			}
 			if _, ok := m[f.name]; !ok || m[f.name] != f.mod {
-				m.update(&f)
+				m.update(f)
 				reload(bin)
 			}
 		}
-		time.Sleep(500 * time.Millisecond)
 	}
 }
