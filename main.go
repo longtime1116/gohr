@@ -20,6 +20,10 @@ type FileInfo struct {
 	mod  time.Time
 }
 
+func (fi *FileInfo) String() string {
+	return fmt.Sprintf("{name: %v, mod: %v}", fi.name, fi.mod)
+}
+
 // DirWalk gets filename and mod time of all files under the current directory recursively
 func DirWalk(path string) ([]FileInfo, error) {
 	files, err := ioutil.ReadDir(path)
