@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -21,7 +22,7 @@ type FileInfo struct {
 }
 
 func (fi *FileInfo) String() string {
-	return fmt.Sprintf("{name: %v, mod: %v}", fi.name, fi.mod)
+	return fmt.Sprintf("%v (%v)", fi.name, fi.mod)
 }
 
 // DirWalk gets filename and mod time of all files under the current directory recursively
@@ -32,6 +33,9 @@ func DirWalk(path string) ([]FileInfo, error) {
 	}
 	fi := make([]FileInfo, 0, len(files))
 	for _, f := range files {
+		if strings.HasPrefix(f.Name(), ".") {
+			continue
+		}
 		if f.IsDir() {
 			fi2, err := DirWalk(filepath.Join(path, f.Name()))
 			if err != nil {
@@ -69,7 +73,7 @@ func outfname() (string, error) {
 }
 
 func reload(bin string) {
-	clear(bin)
+	//clear(bin)
 
 	fmt.Printf("Reloading... ")
 	// build
