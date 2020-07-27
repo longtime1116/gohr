@@ -20,7 +20,7 @@ gohr -h
 ## Usage
 
 ```shell
-gohr <binary name>
+gohr <output binary name>
 ```
 
 For example,
@@ -29,9 +29,8 @@ For example,
 gohr main
 ```
 
-If you ommit binary name, the basename of current directory is used.
+If you ommit output binary name, the basename of current directory is used.
 
 ## Demo
+
 ![gohr demo](https://raw.githubusercontent.com/wiki/longtime1116/gohr/images/gohr.gif)
-
-

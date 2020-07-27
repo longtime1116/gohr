@@ -102,6 +102,14 @@ func clear(bin string) {
 	cmd.Run()
 	fmt.Println("$ gohr " + bin)
 }
+func init() {
+	flag.Usage = func() {
+		txt := `Usage: gohr <output binary name>
+When you ommit output binary name, the basename of current directory is used.`
+		fmt.Fprintf(os.Stderr, "%s\n", txt)
+	}
+	flag.Parse()
+}
 func main() {
 	bin, err := outfname()
 	if err != nil {
