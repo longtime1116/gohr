@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"testing"
 	"time"
 )
 
@@ -44,7 +45,7 @@ func DirWalk(path string) ([]*FileInfo, error) {
 			fi = append(fi, fi2...)
 			continue
 		}
-		fi = append(fi, &FileInfo{f.Name(), f.ModTime()})
+		fi = append(fi, &FileInfo{filepath.Join(path, f.Name()), f.ModTime()})
 	}
 	return fi, nil
 }
@@ -103,6 +104,7 @@ func clear(bin string) {
 	fmt.Println("$ gohr " + bin)
 }
 func init() {
+	testing.Init()
 	flag.Usage = func() {
 		txt := `Usage: gohr <output binary name>
 When you ommit output binary name, the basename of current directory is used.`

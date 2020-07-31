@@ -18,8 +18,8 @@ func prepareTestDirWalk(workDir string) {
 	}
 
 	// directory and a file in it
-	dir, err := ioutil.TempDir(workDir, "dir")
-	if err != nil {
+	dir := workDir + "/dir"
+	if err := os.Mkdir(dir, 0777); err != nil {
 		log.Fatal(err)
 	}
 	file = filepath.Join(dir, "file_in_dir.txt")
@@ -44,21 +44,28 @@ func prepareTestDirWalk(workDir string) {
 	}
 }
 func TestDirWalk(t *testing.T) {
+	cur, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// create tmp dir
-	workDir, err := ioutil.TempDir("./", "TestDirWalk")
+	workDir, err := ioutil.TempDir(cur, "TestDirWalk")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer os.RemoveAll(workDir)
 
-	prepareTestDirWalk(workDir)
+	// move to tmp dir and create necessary files, then execute DirWalk
+	os.Chdir(workDir)
+	prepareTestDirWalk("./")
 	now := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
-	fis, err := DirWalk(workDir)
+	fis, err := DirWalk("./")
 	for _, fi := range fis {
 		fi.mod = now
 	}
 	ans := []*FileInfo{
-		{"file_in_dir.txt", now},
+		{"dir/file_in_dir.txt", now},
 		{"file.txt", now},
 	}
 	if !reflect.DeepEqual(fis, ans) {
