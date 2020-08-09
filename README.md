@@ -11,10 +11,15 @@ Just run `gohr` in the terminal, the program is compiled every time the files ar
 go get github.com/longtime1116/gohr
 ```
 
-Then test the installation
+Then test the installation.
 
 ```shell
 gohr -h
+Usage: gohr [OPTIONS] [<output binary name>]
+When you ommit output binary name, the basename of current directory is used.
+  -b    alias of --build-only
+  -build-only
+        Just only build and not execute command.
 ```
 
 ## Usage
@@ -30,6 +35,13 @@ gohr main
 ```
 
 If you ommit output binary name, the basename of current directory is used.
+
+Also you can add `--build-only` or `-b` option.
+With this option, `gohr` just build the program and don't execute it.
+
+```shell
+gohr --build-only main
+```
 
 ## Demo
 
