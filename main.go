@@ -9,8 +9,11 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"testing"
 	"time"
+)
+
+var (
+	buildOnly = flag.Bool("build-only", false, "Just only build and not execute command.")
 )
 
 // FileModified is a map with filename as key and modtime as value.
@@ -62,7 +65,6 @@ func (m FileModified) update(fi *FileInfo) {
 }
 
 func outfname() (string, error) {
-	flag.Parse()
 	if len(flag.Args()) == 0 {
 		dirname, err := os.Getwd()
 		if err != nil {
@@ -87,6 +89,11 @@ func reload(bin string) {
 	}
 	fmt.Printf("`" + bin + "` was built!\n\n")
 
+	if *buildOnly {
+		fmt.Println("----- Running with --build-only option -----")
+		return
+	}
+
 	// execute
 	out, err = exec.Command("./" + bin).CombinedOutput()
 	if err != nil {
@@ -103,16 +110,27 @@ func clear(bin string) {
 	cmd.Run()
 	fmt.Println("$ gohr " + bin)
 }
-func init() {
-	testing.Init()
+func flagParse() {
+	b := flag.Bool("b", false, "alias of --build-only")
 	flag.Usage = func() {
-		txt := `Usage: gohr <output binary name>
-When you ommit output binary name, the basename of current directory is used.`
-		fmt.Fprintf(os.Stderr, "%s\n", txt)
+		fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS] [<output binary name>]\n", flag.CommandLine.Name())
+		fmt.Fprintf(os.Stderr, "When you ommit output binary name, the basename of current directory is used.\n")
+		flag.PrintDefaults()
 	}
+
 	flag.Parse()
+
+	// Resolve alias.
+	*buildOnly = *buildOnly || *b
 }
+
 func main() {
+	flagParse()
+	if len(flag.Args()) > 1 {
+		flag.Usage()
+		return
+	}
+
 	bin, err := outfname()
 	if err != nil {
 		panic(err)
